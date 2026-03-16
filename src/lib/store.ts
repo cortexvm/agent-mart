@@ -1,86 +1,86 @@
 import { Order } from "./types";
-import { getDb } from "./db";
+import { getDb, initializeDb } from "./db";
 
-export function createOrder(order: Order): Order {
-  const db = getDb();
-  const stmt = db.prepare(`
+let initialized = false;
+
+async function ensureDb() {
+  if (!initialized) {
+    await initializeDb();
+    initialized = true;
+  }
+}
+
+export async function createOrder(order: Order): Promise<Order> {
+  await ensureDb();
+  const sql = getDb();
+  await sql`
     INSERT INTO orders (id, items, total_amount, currency, payment_method, status, customer_name, customer_email, customer_phone, customer_address, customer_city, customer_country, agent_id, estimated_delivery, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  stmt.run(
-    order.id,
-    JSON.stringify(order.items),
-    order.totalAmount,
-    order.currency,
-    order.paymentMethod,
-    order.status,
-    order.customer.name,
-    order.customer.email || null,
-    order.customer.phone || null,
-    order.customer.address,
-    order.customer.city,
-    order.customer.country,
-    order.agentId || null,
-    order.estimatedDelivery,
-    order.createdAt
-  );
+    VALUES (${order.id}, ${JSON.stringify(order.items)}, ${order.totalAmount}, ${order.currency}, ${order.paymentMethod}, ${order.status}, ${order.customer.name}, ${order.customer.email || null}, ${order.customer.phone || null}, ${order.customer.address}, ${order.customer.city}, ${order.customer.country}, ${order.agentId || null}, ${order.estimatedDelivery}, ${order.createdAt})
+  `;
   return order;
 }
 
-export function getOrder(id: string): Order | undefined {
-  const db = getDb();
-  const row = db.prepare("SELECT * FROM orders WHERE id = ?").get(id) as Record<string, unknown> | undefined;
-  if (!row) return undefined;
-  return rowToOrder(row);
+export async function getOrder(id: string): Promise<Order | undefined> {
+  await ensureDb();
+  const sql = getDb();
+  const rows = await sql`SELECT * FROM orders WHERE id = ${id}`;
+  if (rows.length === 0) return undefined;
+  return rowToOrder(rows[0]);
 }
 
-export function getAllOrders(): Order[] {
-  const db = getDb();
-  const rows = db.prepare("SELECT * FROM orders ORDER BY created_at DESC").all() as Record<string, unknown>[];
+export async function getAllOrders(): Promise<Order[]> {
+  await ensureDb();
+  const sql = getDb();
+  const rows = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
   return rows.map(rowToOrder);
 }
 
-export function getOrderStats(): {
+export async function getOrderStats(): Promise<{
   totalOrders: number;
   totalRevenue: number;
   ordersByStatus: Record<string, number>;
   ordersByAgent: Record<string, number>;
   recentOrders: Order[];
-} {
-  const db = getDb();
+}> {
+  await ensureDb();
+  const sql = getDb();
 
-  const totalOrders = (db.prepare("SELECT COUNT(*) as count FROM orders").get() as { count: number }).count;
-  const totalRevenue = (db.prepare("SELECT COALESCE(SUM(total_amount), 0) as total FROM orders").get() as { total: number }).total;
+  const countResult = await sql`SELECT COUNT(*) as count FROM orders`;
+  const totalOrders = Number(countResult[0].count) || 0;
 
-  const statusRows = db.prepare("SELECT status, COUNT(*) as count FROM orders GROUP BY status").all() as { status: string; count: number }[];
+  const revenueResult = await sql`SELECT COALESCE(SUM(total_amount), 0) as total FROM orders`;
+  const totalRevenue = Number(revenueResult[0].total) || 0;
+
+  const statusResult = await sql`SELECT status, COUNT(*) as count FROM orders GROUP BY status`;
   const ordersByStatus: Record<string, number> = {};
-  for (const row of statusRows) {
-    ordersByStatus[row.status] = row.count;
+  for (const row of statusResult) {
+    ordersByStatus[row.status as string] = Number(row.count);
   }
 
-  const agentRows = db.prepare("SELECT COALESCE(agent_id, 'unknown') as agent, COUNT(*) as count FROM orders GROUP BY agent_id").all() as { agent: string; count: number }[];
+  const agentResult = await sql`SELECT COALESCE(agent_id, 'unknown') as agent, COUNT(*) as count FROM orders GROUP BY agent_id`;
   const ordersByAgent: Record<string, number> = {};
-  for (const row of agentRows) {
-    ordersByAgent[row.agent] = row.count;
+  for (const row of agentResult) {
+    ordersByAgent[row.agent as string] = Number(row.count);
   }
 
-  const recentRows = db.prepare("SELECT * FROM orders ORDER BY created_at DESC LIMIT 10").all() as Record<string, unknown>[];
-  const recentOrders = recentRows.map(rowToOrder);
+  const recentResult = await sql`SELECT * FROM orders ORDER BY created_at DESC LIMIT 10`;
+  const recentOrders = recentResult.map(rowToOrder);
 
   return { totalOrders, totalRevenue, ordersByStatus, ordersByAgent, recentOrders };
 }
 
-export function updateOrderStatus(id: string, status: Order["status"]): boolean {
-  const db = getDb();
-  const result = db.prepare("UPDATE orders SET status = ? WHERE id = ?").run(status, id);
-  return result.changes > 0;
+export async function updateOrderStatus(id: string, status: Order["status"]): Promise<boolean> {
+  await ensureDb();
+  const sql = getDb();
+  const result = await sql`UPDATE orders SET status = ${status} WHERE id = ${id}`;
+  return result.length !== undefined;
 }
 
 function rowToOrder(row: Record<string, unknown>): Order {
   return {
     id: row.id as string,
     items: JSON.parse(row.items as string),
-    totalAmount: row.total_amount as number,
+    totalAmount: Number(row.total_amount),
     currency: row.currency as string,
     paymentMethod: row.payment_method as "COD",
     status: row.status as Order["status"],

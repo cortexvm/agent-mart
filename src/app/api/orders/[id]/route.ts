@@ -7,13 +7,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const order = getOrder(id);
+  const order = await getOrder(id);
 
   if (!order) {
     return NextResponse.json(
       {
         success: false,
-        error: `Order "${id}" not found. Note: orders are stored in-memory and may be lost on server restart.`,
+        error: `Order "${id}" not found.`,
         meta: { timestamp: new Date().toISOString() },
       },
       { status: 404, headers: corsHeaders }

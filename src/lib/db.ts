@@ -1,37 +1,22 @@
-import Database from "better-sqlite3";
-import path from "path";
-import fs from "fs";
+import { neon } from "@neondatabase/serverless";
 
-let db: Database.Database;
-
-function getDbPath(): string {
-  // On Vercel serverless, use /tmp for writable storage
-  // Locally, use a data/ directory in the project root
-  if (process.env.VERCEL) {
-    return "/tmp/agentmart.db";
+export function getDb() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error(
+      "DATABASE_URL environment variable is not set. Create a Neon Postgres database from your Vercel dashboard (Storage > Create Database > Neon Postgres) and link it to this project."
+    );
   }
-  const dataDir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  return path.join(dataDir, "agentmart.db");
+  return neon(databaseUrl);
 }
 
-export function getDb(): Database.Database {
-  if (!db) {
-    db = new Database(getDbPath());
-    db.pragma("journal_mode = WAL");
-    initializeDb(db);
-  }
-  return db;
-}
-
-function initializeDb(db: Database.Database): void {
-  db.exec(`
+export async function initializeDb(): Promise<void> {
+  const sql = getDb();
+  await sql`
     CREATE TABLE IF NOT EXISTS orders (
       id TEXT PRIMARY KEY,
       items TEXT NOT NULL,
-      total_amount REAL NOT NULL,
+      total_amount NUMERIC NOT NULL,
       currency TEXT NOT NULL DEFAULT 'USD',
       payment_method TEXT NOT NULL DEFAULT 'COD',
       status TEXT NOT NULL DEFAULT 'confirmed',
@@ -45,5 +30,5 @@ function initializeDb(db: Database.Database): void {
       estimated_delivery TEXT NOT NULL,
       created_at TEXT NOT NULL
     )
-  `);
+  `;
 }

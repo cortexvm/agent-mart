@@ -24,7 +24,7 @@ export async function PATCH(
       );
     }
 
-    const updated = updateOrderStatus(id, status);
+    const updated = await updateOrderStatus(id, status);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: `Order "${id}" not found`, meta: { timestamp: new Date().toISOString() } },
@@ -32,7 +32,7 @@ export async function PATCH(
       );
     }
 
-    const order = getOrder(id);
+    const order = await getOrder(id);
     return NextResponse.json(
       { success: true, data: order, meta: { timestamp: new Date().toISOString() } },
       { headers: corsHeaders }

@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
       agentId: agentId || undefined,
     };
 
-    const created = createOrder(order);
+    const created = await createOrder(order);
 
     return NextResponse.json(
       {

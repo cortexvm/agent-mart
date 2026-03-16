@@ -5,7 +5,7 @@ import { corsHeaders } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const stats = getOrderStats();
+  const stats = await getOrderStats();
 
   return NextResponse.json(
     {
