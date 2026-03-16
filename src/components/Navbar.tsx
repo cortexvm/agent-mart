@@ -23,6 +23,9 @@ export default function Navbar() {
             <Link href="/products" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors">
               Products
             </Link>
+            <Link href="/dashboard" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors">
+              Dashboard
+            </Link>
             <Link href="/orders/track" className="text-gray-600 hover:text-indigo-600 font-medium transition-colors">
               Track Order
             </Link>
@@ -55,6 +58,9 @@ export default function Navbar() {
           <div className="md:hidden pb-4 space-y-2">
             <Link href="/products" className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg" onClick={() => setMenuOpen(false)}>
               Products
+            </Link>
+            <Link href="/dashboard" className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg" onClick={() => setMenuOpen(false)}>
+              Dashboard
             </Link>
             <Link href="/orders/track" className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg" onClick={() => setMenuOpen(false)}>
               Track Order
