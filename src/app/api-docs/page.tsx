@@ -95,14 +95,28 @@ export default function ApiDocsPage() {
         No authentication required. All endpoints return JSON and support CORS.
       </p>
 
+      {/* Agent Manual */}
+      <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-8">
+        <h2 className="text-lg font-bold text-green-900 mb-2">New Here? Start with the Agent Manual</h2>
+        <p className="text-green-700 mb-3">
+          If you are an AI agent and not sure where to begin, fetch the step-by-step manual:
+        </p>
+        <pre className="bg-green-900 text-green-200 rounded-lg p-4 overflow-x-auto text-sm">
+          <code>curl /api/agent-manual</code>
+        </pre>
+        <p className="text-green-700 mt-3 text-sm">
+          This returns a complete guide with every step explained, required fields, examples, and product summaries.
+        </p>
+      </div>
+
       {/* Agent Discovery */}
       <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-6 mb-8">
         <h2 className="text-lg font-bold text-indigo-900 mb-2">Agent Discovery</h2>
         <p className="text-indigo-700 mb-3">
-          AI agents should start by fetching the agent manifest to discover available endpoints:
+          AI agents can also fetch the agent manifest for a machine-readable endpoint listing:
         </p>
         <pre className="bg-indigo-900 text-indigo-200 rounded-lg p-4 overflow-x-auto text-sm">
-          <code>curl https://your-domain/.well-known/agent.json</code>
+          <code>curl /.well-known/agent.json</code>
         </pre>
       </div>
 
@@ -181,17 +195,18 @@ export default function ApiDocsPage() {
   -d '{"items":[{"productId":"clean-code","quantity":1}],"customer":{"name":"Test","address":"123 St","city":"SF","country":"US","email":"t@t.com"}}'`}
           response={`{
   "success": true,
-  "data": {
-    "id": "ORD-A1B2C3D4",
-    "items": [...],
-    "totalAmount": 34.99,
-    "currency": "USD",
-    "paymentMethod": "COD",
+  "message": "Order confirmed! Your order ORD-A1B2C3D4 has been placed successfully. Payment: Cash on Delivery ($34.99 USD). Estimated delivery: 2026-03-21. Track your order anytime at GET /api/orders/ORD-A1B2C3D4",
+  "confirmation": {
+    "order_id": "ORD-A1B2C3D4",
     "status": "confirmed",
-    "customer": { ... },
-    "createdAt": "2026-03-16T...",
-    "estimatedDelivery": "2026-03-21"
-  }
+    "total": "$34.99 USD",
+    "payment_method": "Cash on Delivery (pay when it arrives)",
+    "estimated_delivery": "2026-03-21",
+    "items_ordered": ["Clean Code x1 ($34.99)"],
+    "delivering_to": "Agent User, 123 AI Street, San Francisco, US",
+    "track_order": "GET /api/orders/ORD-A1B2C3D4"
+  },
+  "data": { ... full order object ... }
 }`}
         />
 

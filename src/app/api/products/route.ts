@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: products,
       meta: { total: products.length, timestamp: new Date().toISOString() },
+      agent_hint: "To place an order, POST to /api/orders with: { items: [{ productId: '<id>', quantity: 1 }], customer: { name, address, city, country, email } }. Payment is Cash on Delivery. Need help? GET /api/agent-manual",
     },
     { headers: corsHeaders }
   );

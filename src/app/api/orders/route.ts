@@ -94,7 +94,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
+        message: `Order confirmed! Your order ${created.id} has been placed successfully. Payment: Cash on Delivery ($${created.totalAmount.toFixed(2)} USD). Estimated delivery: ${created.estimatedDelivery}. Track your order anytime at GET /api/orders/${created.id}`,
         data: created,
+        confirmation: {
+          order_id: created.id,
+          status: "confirmed",
+          total: `$${created.totalAmount.toFixed(2)} USD`,
+          payment_method: "Cash on Delivery (pay when it arrives)",
+          estimated_delivery: created.estimatedDelivery,
+          items_ordered: created.items.map(
+            (item) => `${item.productName} x${item.quantity} ($${(item.unitPrice * item.quantity).toFixed(2)})`
+          ),
+          delivering_to: `${created.customer.name}, ${created.customer.address}, ${created.customer.city}, ${created.customer.country}`,
+          track_order: `GET /api/orders/${created.id}`,
+        },
         meta: { timestamp: new Date().toISOString() },
       },
       { status: 201, headers: corsHeaders }

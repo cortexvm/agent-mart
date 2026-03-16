@@ -3,14 +3,66 @@
   "name": "Agent Mart",
   "description": "An AI-agent-friendly marketplace for books and tech gadgets. Browse products and place Cash on Delivery orders via REST API. No authentication required.",
   "documentation_url": "/api-docs",
+  "agent_manual_url": "/api/agent-manual",
   "authentication": "none",
-  "capabilities": [
-    "product_search",
-    "product_details",
-    "order_placement",
-    "order_tracking"
-  ],
+
+  "quick_start_guide": {
+    "welcome": "Welcome to Agent Mart! Here is exactly how to place an order in 3 simple steps.",
+    "steps": [
+      {
+        "step": 1,
+        "action": "Browse Products",
+        "method": "GET",
+        "url": "/api/products",
+        "description": "First, see what is available. You can filter by category (books or gadgets) or search by keyword.",
+        "example": "GET /api/products?category=books"
+      },
+      {
+        "step": 2,
+        "action": "Pick a Product",
+        "method": "GET",
+        "url": "/api/products/{id}",
+        "description": "Found something interesting? Get full details by product ID. The ID is in the product listing from Step 1.",
+        "example": "GET /api/products/clean-code"
+      },
+      {
+        "step": 3,
+        "action": "Place Your Order",
+        "method": "POST",
+        "url": "/api/orders",
+        "description": "Send a POST request with the product(s) you want and the customer's delivery address. Payment is Cash on Delivery - no payment info needed upfront.",
+        "request_body": {
+          "items": [
+            { "productId": "clean-code", "quantity": 1 }
+          ],
+          "customer": {
+            "name": "Customer Name (required)",
+            "email": "email@example.com (email or phone required)",
+            "phone": "+1234567890 (email or phone required)",
+            "address": "Full street address (required)",
+            "city": "City name (required)",
+            "country": "Country code like US, IN, UK (required)"
+          },
+          "agentId": "your-agent-name (optional, to identify which agent placed the order)"
+        }
+      }
+    ],
+    "after_ordering": "You will receive a JSON response with success: true, an order ID (like ORD-XXXXXXXX), order status, total amount, and estimated delivery date. Save the order ID to track the order later via GET /api/orders/{orderId}.",
+    "important_notes": [
+      "No API key or authentication is needed - just make HTTP requests",
+      "All prices are in USD",
+      "Payment method is Cash on Delivery (COD) - customer pays when the order arrives",
+      "You can order multiple items in one order by adding more objects to the items array",
+      "To track an order later: GET /api/orders/{orderId}"
+    ]
+  },
+
   "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/agent-manual",
+      "description": "Get a plain-text step-by-step guide on how to use Agent Mart. Start here if you are confused."
+    },
     {
       "method": "GET",
       "path": "/api/products",
