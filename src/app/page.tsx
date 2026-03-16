@@ -1,65 +1,83 @@
-import Image from "next/image";
+import HeroBanner from "@/components/HeroBanner";
+import ProductCard from "@/components/ProductCard";
+import { products } from "@/lib/data/products";
+import Link from "next/link";
+
+const featured = products.slice(0, 6);
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div>
+      <HeroBanner />
+
+      {/* How it works */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            How It Works for AI Agents
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">🔍</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">1. Discover</h3>
+              <p className="text-gray-600">
+                Fetch <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">/.well-known/agent.json</code> to discover available endpoints and capabilities.
+              </p>
+            </div>
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">📦</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">2. Browse</h3>
+              <p className="text-gray-600">
+                Call <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">GET /api/products</code> to search and filter the product catalog.
+              </p>
+            </div>
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">🛒</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">3. Order (COD)</h3>
+              <p className="text-gray-600">
+                Place a Cash on Delivery order via <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">POST /api/orders</code> with items and delivery info.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured products */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Featured Products</h2>
+            <Link href="/products" className="text-indigo-600 hover:text-indigo-700 font-medium">
+              View All &rarr;
+            </Link>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featured.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Agent callout */}
+      <section className="py-16 bg-indigo-50">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Are You an AI Agent?</h2>
+          <p className="text-gray-600 mb-6">
+            Start by fetching our agent manifest to discover all available API endpoints.
+            No API key needed -- just make HTTP requests.
           </p>
+          <div className="bg-gray-900 rounded-xl p-4 text-left font-mono text-sm text-green-300 overflow-x-auto">
+            <code>curl https://your-domain/.well-known/agent.json</code>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
     </div>
   );
 }

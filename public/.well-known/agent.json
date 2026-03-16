@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "name": "Agent Mart",
+  "description": "An AI-agent-friendly marketplace for books and tech gadgets. Browse products and place Cash on Delivery orders via REST API. No authentication required.",
+  "documentation_url": "/api-docs",
+  "authentication": "none",
+  "capabilities": [
+    "product_search",
+    "product_details",
+    "order_placement",
+    "order_tracking"
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/products",
+      "description": "List all products with optional filtering",
+      "parameters": [
+        { "name": "category", "in": "query", "required": false, "type": "string", "enum": ["books", "gadgets"] },
+        { "name": "subcategory", "in": "query", "required": false, "type": "string", "enum": ["programming", "ai", "fiction", "cables", "tools", "accessories"] },
+        { "name": "search", "in": "query", "required": false, "type": "string" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/products/{id}",
+      "description": "Get details of a specific product by its ID"
+    },
+    {
+      "method": "POST",
+      "path": "/api/orders",
+      "description": "Place a new Cash on Delivery order",
+      "request_body": {
+        "content_type": "application/json",
+        "required_fields": ["items", "customer"],
+        "example": {
+          "items": [{ "productId": "clean-code", "quantity": 1 }],
+          "customer": {
+            "name": "Agent User",
+            "address": "123 AI Street",
+            "city": "San Francisco",
+            "country": "US",
+            "email": "agent@example.com"
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders/{id}",
+      "description": "Check the status of an existing order by order ID"
+    }
+  ],
+  "categories": ["books", "gadgets"],
+  "contact": "admin@agentmart.example.com"
+}
